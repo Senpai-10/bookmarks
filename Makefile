@@ -1,6 +1,6 @@
 DEST=~/.local/bin
 
-install:
+install: uninstall
 	@cp -vr bookmarks_lib ${DEST}/bookmarks_lib
 	@cp -v bookmarks.py ${DEST}/bookmarks
 
