@@ -1,0 +1,2 @@
+dmenu==0.2.1
+notify-py==0.3.3
