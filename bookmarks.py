@@ -18,7 +18,7 @@ CATEGORY BOOKMARK
 '''
 
 import argparse
-import dmenu
+import bookmarks_lib.dmenu as dmenu
 from enum import Enum
 
 
@@ -41,6 +41,8 @@ def main(command: Commands):
     match command:
         case command.add:
             notification.send()
+            print(dmenu.input("hi"))
+            dmenu.show(["hi", "hi2", "hi3"])
 
         case command.remove:
             ...
