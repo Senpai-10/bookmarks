@@ -96,7 +96,33 @@ def main(command: str):
             manage_bookmarks.write_back("~/bookmarks.txt", list_of_bookmarks)
 
         case "find":
-            ...
+            category = dmenu.show(
+                list(list_of_bookmarks.keys()),
+                prompt="Select a category: ",
+            )
+
+            if category == None:
+                return
+
+            bookmarks = list_of_bookmarks.get(category) or []
+
+            if len(bookmarks) == 0:
+                return
+
+            bookmark = dmenu.show(bookmarks)
+
+            if bookmark == None: return
+
+            args = ["xclip", "-selection", "clipboard"]
+
+            process = subprocess.Popen(["echo", bookmark], stdout=subprocess.PIPE)
+
+            subprocess.Popen(
+                args,
+                stdin=process.stdout,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+            )
 
         # case _:
         #     print("unknown command!")
