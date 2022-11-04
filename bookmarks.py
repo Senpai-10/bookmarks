@@ -57,9 +57,10 @@ def get_selected_text():
 
 
 def main(command: Commands):
+    list_of_bookmarks = manage_bookmarks.load("~/bookmarks.txt") or {}
+
     match command:
         case command.add:
-            list_of_bookmarks = manage_bookmarks.load("~/bookmarks.txt") or {}
             create_new_category_text = "new category!"
 
             category = dmenu.show(
@@ -81,7 +82,19 @@ def main(command: Commands):
             manage_bookmarks.write_back("~/bookmarks.txt", list_of_bookmarks)
 
         case command.remove:
-            ...
+            category = dmenu.show(
+                list(list_of_bookmarks.keys()),
+                prompt="Select a category: ",
+            )
+
+            if category == None: return
+
+            bookmarks = list_of_bookmarks.get(category) or []
+            bookmark = dmenu.show(bookmarks)
+
+            bookmarks.remove(bookmark)
+
+            manage_bookmarks.write_back("~/bookmarks.txt", list_of_bookmarks)
 
         case command.find:
             ...
