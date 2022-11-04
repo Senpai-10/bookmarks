@@ -21,18 +21,9 @@ import argparse
 from bookmarks_lib import dmenu
 from bookmarks_lib import manage_bookmarks
 import subprocess
-from enum import Enum
 from notifypy import Notify
 
-
-class Commands(Enum):
-    add = "add"
-    remove = "remove"
-    find = "find"
-
-    def __str__(self):
-        return self.value
-
+commands = ["add", "remove", "find"]
 
 notification = Notify()
 
@@ -56,17 +47,20 @@ def get_selected_text():
     return proc.stdout.read().rstrip("\n")
 
 
-def main(command: Commands):
+def main(command: str):
     list_of_bookmarks = manage_bookmarks.load("~/bookmarks.txt") or {}
 
     match command:
-        case command.add:
+        case "add":
             create_new_category_text = "new category!"
 
-            category = dmenu.show(
-                list(list_of_bookmarks.keys()) + [create_new_category_text],
-                prompt="Select a category: ",
-            ) or create_new_category_text
+            category = (
+                dmenu.show(
+                    list(list_of_bookmarks.keys()) + [create_new_category_text],
+                    prompt="Select a category: ",
+                )
+                or create_new_category_text
+            )
 
             bookmark = get_selected_text()
 
@@ -81,22 +75,27 @@ def main(command: Commands):
 
             manage_bookmarks.write_back("~/bookmarks.txt", list_of_bookmarks)
 
-        case command.remove:
+        case "remove":
             category = dmenu.show(
                 list(list_of_bookmarks.keys()),
                 prompt="Select a category: ",
             )
 
-            if category == None: return
+            if category == None:
+                return
 
             bookmarks = list_of_bookmarks.get(category) or []
+
+            if len(bookmarks) == 0:
+                return
+
             bookmark = dmenu.show(bookmarks)
 
             bookmarks.remove(bookmark)
 
             manage_bookmarks.write_back("~/bookmarks.txt", list_of_bookmarks)
 
-        case command.find:
+        case "find":
             ...
 
         # case _:
@@ -109,8 +108,13 @@ if __name__ == "__main__":
         description="simple bookmarks manager",
     )
 
-    parser.add_argument("command", type=Commands, choices=list(Commands))
+    parser.add_argument("-c", "--cmd", type=str, choices=commands, required=False)
 
     opts = parser.parse_args()
 
-    main(opts.command)
+    cmd = opts.cmd
+
+    if cmd is None:
+        cmd = dmenu.show(commands, prompt="select command") or ""
+
+    main(cmd)
