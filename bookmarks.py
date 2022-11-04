@@ -41,7 +41,6 @@ notification.icon = ""
 def get_selected_text():
     args = ["xclip", "-o"]
 
-    # start the dmenu process
     proc = subprocess.Popen(
         args,
         universal_newlines=True,
