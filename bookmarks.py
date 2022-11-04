@@ -19,6 +19,7 @@ CATEGORY BOOKMARK
 
 import argparse
 from bookmarks_lib import dmenu
+from bookmarks_lib import manage_bookmarks
 import subprocess
 from enum import Enum
 from notifypy import Notify
@@ -58,8 +59,26 @@ def get_selected_text():
 def main(command: Commands):
     match command:
         case command.add:
-            bookmark_text = get_selected_text()
-            print(bookmark_text)
+            list_of_bookmarks = manage_bookmarks.load("~/bookmarks.txt") or {}
+            create_new_category_text = "new category!"
+
+            category = dmenu.show(
+                list(list_of_bookmarks.keys()) + [create_new_category_text],
+                prompt="Select a category: ",
+            ) or create_new_category_text
+
+            bookmark = get_selected_text()
+
+            if category == create_new_category_text:
+                category = dmenu.input("New category: ")
+
+            list_of_bookmarks.setdefault(category, []).append(bookmark)
+
+            notification.title = f"New bookmark added to {category}"
+            notification.message = f"{bookmark}"
+            notification.send()
+
+            manage_bookmarks.write_back("~/bookmarks.txt", list_of_bookmarks)
 
         case command.remove:
             ...
